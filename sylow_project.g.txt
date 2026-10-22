@@ -6,7 +6,16 @@ GenerateConjugationMasterclass := function(L, G, fn)
           conjStrs2, conjStrs3, i, j, g, genList, 
           genStr, testElems, elemStrs, 
           map_g, mappings2, mappings3, conjP,
-          N2, szN2, N3, szN3, genListN, dispName, GetX, GetY;
+          N2, szN2, N3, szN3, genListN, dispName, 
+          GetX, GetY, CleanP;
+
+    CleanP := function(s)
+        local res, c; res := "";
+        for c in s do
+            if c <> ',' then Add(res, c); 
+            elif c = ',' then Add(res, ' '); fi;
+        od; return res;
+    end;
 
     sSub2 := SylowSubgroup(G, 2); 
     cL2 := ConjugateSubgroups(G, sSub2); 
@@ -16,7 +25,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
         genList := GeneratorsOfGroup(cL2[i]); 
         genStr := "";
         for g in genList do 
-            genStr:=Concatenation(genStr,String(g),", "); 
+            genStr:=Concatenation(genStr,CleanP(String(g)),", "); 
         od;
         if Length(genStr)>1 then 
             genStr:=genStr{[1..Length(genStr)-2]}; 
@@ -34,7 +43,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
         genList := GeneratorsOfGroup(cL3[i]); 
         genStr := "";
         for g in genList do 
-            genStr:=Concatenation(genStr,String(g),", "); 
+            genStr:=Concatenation(genStr,CleanP(String(g)),", "); 
         od;
         if Length(genStr)>1 then 
             genStr:=genStr{[1..Length(genStr)-2]}; 
@@ -45,7 +54,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
     od;
     
     testElems := [ (1,2,3,4), (1,2,3), (1,2) ];
-    elemStrs := [ "(1,2,3,4)", "(1,2,3)", "(1,2)" ];
+    elemStrs := [ "(1 2 3 4)", "(1 2 3)", "(1 2)" ];
     
     mappings2 := [];
     for g in testElems do
@@ -74,7 +83,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
     N2 := Normalizer(G, cL2[1]); szN2 := Size(N2);
     genListN := GeneratorsOfGroup(N2); genStr := "";
     for g in genListN do 
-        genStr:=Concatenation(genStr,String(g),", "); 
+        genStr:=Concatenation(genStr,CleanP(String(g)),", "); 
     od;
     if Length(genStr)>1 then 
         genStr:=genStr{[1..Length(genStr)-2]}; 
@@ -84,7 +93,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
     N3 := Normalizer(G, cL3[1]); szN3 := Size(N3);
     genListN := GeneratorsOfGroup(N3); genStr := "";
     for g in genListN do 
-        genStr:=Concatenation(genStr,String(g),", "); 
+        genStr:=Concatenation(genStr,CleanP(String(g)),", "); 
     od;
     if Length(genStr)>1 then 
         genStr:=genStr{[1..Length(genStr)-2]}; 
@@ -94,7 +103,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
     out := OutputTextFile(fn, false);
     
     AppendTo(out, "<svg xmlns='http://www.w3.org/2000/svg' ");
-    AppendTo(out, "viewBox='0 0 1400 2350' ");
+    AppendTo(out, "viewBox='0 0 1700 3400' ");
     AppendTo(out, "width='100%' height='100%'>\n");
     
     AppendTo(out, "<script type='text/javascript'>\n");
@@ -115,23 +124,22 @@ GenerateConjugationMasterclass := function(L, G, fn)
     AppendTo(out, "      el.innerHTML = ' &#10230; '+l+(r[i]);\n");
     AppendTo(out, "    }\n");
     AppendTo(out, "    var res = document.getElementById('c_res'+p);\n");
-    AppendTo(out, "    res.innerHTML = l+'_i &#8614; g '+l+'_i ");
-    AppendTo(out, "g&#8315;&#185;, g='+eStr;\n  }\n");
+    AppendTo(out, "    res.innerHTML = l+'<tspan class=\"sub\">i</tspan>");
+    AppendTo(out, " &#10236; g '+l+'<tspan class=\"sub\">i</tspan>");
+    AppendTo(out, " g<tspan class=\"sup\">-1</tspan>, g='+eStr;\n  }\n");
     AppendTo(out, "  function rC(p) {\n");
     AppendTo(out, "    for(var i=1; i != 5; i++) {\n");
     AppendTo(out, "      var el=document.getElementById('lbl'+p+'_'+i);\n");
     AppendTo(out, "      if(el) el.innerHTML='';\n");
     AppendTo(out, "    }\n");
     AppendTo(out, "    var res = document.getElementById('c_res'+p);\n");
-    AppendTo(out, "    res.innerHTML = 'Select an element below:';\n");
+    AppendTo(out, "    res.innerHTML = 'Select g:';\n");
     AppendTo(out, "  }\n");
     AppendTo(out, "</script>\n");
     
     AppendTo(out, "<style>\n");
     AppendTo(out, " rect.node { fill:#fff; stroke:#2563eb; ");
     AppendTo(out, "stroke-width:2.5; rx:8px; }\n");
-    AppendTo(out, " rect.topnode { fill:#e0f2fe; stroke:#1d4ed8; ");
-    AppendTo(out, "stroke-width:3; rx:10px; }\n");
     AppendTo(out, " rect.normalnode { fill:#f8fafc; stroke:#2563eb; ");
     AppendTo(out, "stroke-width:3.5; stroke-dasharray:6,6; rx:8px; }\n");
     AppendTo(out, " rect.sylow2 { fill:#fffbeb; stroke:#d97706; ");
@@ -144,121 +152,443 @@ GenerateConjugationMasterclass := function(L, G, fn)
     AppendTo(out, "stroke-width:2; rx:5px; cursor:pointer; }\n");
     AppendTo(out, " text { font-family:sans-serif; fill:#1e293b; ");
     AppendTo(out, "text-anchor:middle; }\n");
-    AppendTo(out, " .st { font-weight:bold; font-size:16px; ");
+    AppendTo(out, " .st { font-weight:bold; font-size:20px; ");
     AppendTo(out, "fill:#1d4ed8; }\n");
-    AppendTo(out, " .sst2 { font-weight:bold; font-size:16px; ");
+    AppendTo(out, " .sst2 { font-weight:bold; font-size:20px; ");
     AppendTo(out, "fill:#b45309; }\n");
-    AppendTo(out, " .sst3 { font-weight:bold; font-size:16px; ");
+    AppendTo(out, " .sst3 { font-weight:bold; font-size:20px; ");
     AppendTo(out, "fill:#15803d; }\n");
-    AppendTo(out, " .ord { font-size:13px; fill:#64748b; }\n");
+    AppendTo(out, " .ord { font-size:15px; fill:#64748b; }\n");
     AppendTo(out, " line { stroke:#64748b; stroke-width:2.0; ");
     AppendTo(out, "stroke-opacity:0.8; }\n");
     AppendTo(out, " .bg { fill:#f8fafc; }\n");
     AppendTo(out, " .cbg { fill:#fff; stroke:#e2e8f0; ");
     AppendTo(out, "stroke-width:2; rx:12px; }\n");
-    AppendTo(out, " .cti { font-weight:bold; font-size:19px; ");
+    AppendTo(out, " .cti { font-weight:bold; font-size:20px; ");
     AppendTo(out, "text-anchor:start; }\n");
-    AppendTo(out, " .ctx { font-size:16px; fill:#334155; ");
+    AppendTo(out, " .ctx { font-size:19px; fill:#334155; ");
     AppendTo(out, "text-anchor:start; }\n");
+    AppendTo(out, " .sub { baseline-shift:sub; font-size:0.75em; }\n");
+    AppendTo(out, " .sup { baseline-shift:super; font-size:0.75em; }\n");
     AppendTo(out, "</style>\n");
     
-    AppendTo(out, "<rect class='bg' width='100%' height='100%'/>\n");
+    AppendTo(out, "<rect class='bg' x='0' y='0' width='1700' ");
+    AppendTo(out, "height='3400'/>\n");
     
-    AppendTo(out, "<text x='40' y='50' class='cti' ");
-    AppendTo(out, "style='font-size:26px; fill:#0f172a;'>");
-    AppendTo(out, "Subgroup Lattice of S&#8324; &#8212; ");
-    AppendTo(out, "A Computational View of Sylow Theory</text>\n");
+    # ---------------- TOP HEADER ----------------
+    AppendTo(out, "<text x='50' y='50' class='cti' ");
+    AppendTo(out, "style='font-size:30px; fill:#0f172a;'>");
+    AppendTo(out, "Subgroup Structure of S<tspan class='sub'>4</tspan>: ");
+    AppendTo(out, "A Conjugacy-Class Diagram</text>\n");
     
-    AppendTo(out, "<text x='40' y='85' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; font-size:18px;'>");
-    AppendTo(out, "11 conjugacy classes &#10230; ");
-    AppendTo(out, "30 actual subgroups</text>\n");
+    AppendTo(out, "<text x='50' y='90' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; font-size:24px; ");
+    AppendTo(out, "fill:#2563eb;'>");
+    AppendTo(out, "and Computational View of Sylow Theory</text>\n");
     
-    AppendTo(out, "<text x='40' y='110' class='ctx'>");
-    AppendTo(out, "The lattice is compressed by conjugacy: ");
-    AppendTo(out, "one node represents an entire conjugacy class.</text>\n");
-    
-    AppendTo(out, "<text x='40' y='135' class='ctx'>");
-    AppendTo(out, "An edge represents a Hasse cover relation: ");
-    AppendTo(out, "a conjugate of a representative of the lower class ");
-    AppendTo(out, "is contained in a representative of the upper class.");
+    AppendTo(out, "<text x='50' y='140' class='ctx' ");
+    AppendTo(out, "style='font-size:20px;'>");
+    AppendTo(out, "11 conjugacy classes &#10230; <tspan ");
+    AppendTo(out, "font-weight='900'>30 actual subgroups</tspan>");
     AppendTo(out, "</text>\n");
     
-    AppendTo(out, "<text x='40' y='160' class='ctx' ");
-    AppendTo(out, "style='font-style:italic;'>");
-    AppendTo(out, "Hasse edge: no subgroup class lies strictly ");
-    AppendTo(out, "between the two connected classes.</text>\n");
+    AppendTo(out, "<text x='50' y='170' class='ctx' ");
+    AppendTo(out, "style='font-size:20px;'>");
+    AppendTo(out, "Each node represents a conjugacy class of ");
+    AppendTo(out, "subgroups of S<tspan class='sub'>4</tspan>.</text>\n");
+    
+    AppendTo(out, "<text x='50' y='200' class='ctx' ");
+    AppendTo(out, "style='font-size:20px;'>");
+    AppendTo(out, "Hasse edges: An edge connects two conjugacy ");
+    AppendTo(out, "classes when suitable representatives have a</text>\n");
+    
+    AppendTo(out, "<text x='50' y='230' class='ctx' ");
+    AppendTo(out, "style='font-size:20px;'>");
+    AppendTo(out, "maximal proper subgroup containment. Edges ");
+    AppendTo(out, "show cover relations, not all inclusions.</text>\n");
+    
+    AppendTo(out, "<text x='50' y='260' class='ctx' ");
+    AppendTo(out, "style='font-size:20px; font-weight:bold;'>");
+    AppendTo(out, "Crossing lines do not indicate a connection.</text>\n");
 
-    AppendTo(out, "<text x='40' y='190' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; fill:#2563eb;'>");
-    AppendTo(out, "&#8721;_{classes} (class size) = 30 ");
-    AppendTo(out, "actual subgroups of S&#8324;.</text>\n");
-
-    # REORDERED LEGEND
-    AppendTo(out, "<rect x='920' y='30' width='440' height='160' ");
+    # ---------------- LEGEND ----------------
+    AppendTo(out, "<rect x='1120' y='30' width='530' height='240' ");
     AppendTo(out, "fill='#f8fafc' stroke='#cbd5e1' rx='6'/>\n");
     
-    AppendTo(out, "<text x='940' y='55' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; font-size:18px;'>");
+    AppendTo(out, "<text x='1140' y='65' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; font-size:20px;'>");
     AppendTo(out, "Notation &amp; Legend</text>\n");
 
-    AppendTo(out, "<rect x='940' y='72' width='15' height='15' ");
-    AppendTo(out, "fill='#fffbeb' stroke='#d97706' ");
-    AppendTo(out, "stroke-width='2'/>\n");
-    AppendTo(out, "<text x='970' y='85' class='ctx'>");
-    AppendTo(out, "Sylow 2: D&#8328; (dihedral order 8), n&#8322;=3</text>\n");
+    AppendTo(out, "<rect x='1140' y='85' width='15' height='15' ");
+    AppendTo(out, "fill='#fffbeb' stroke='#d97706' stroke-width='2'/>\n");
+    AppendTo(out, "<text x='1170' y='98' class='ctx' ");
+    AppendTo(out, "style='font-size:18px;'>");
+    AppendTo(out, "<tspan fill='#d97706' font-weight='bold'>Orange:</tspan> ");
+    AppendTo(out, "Sylow 2-subgroups, D<tspan class='sub'>8</tspan> ");
+    AppendTo(out, "(dihedral group of</text>\n");
+    AppendTo(out, "<text x='1170' y='120' class='ctx' ");
+    AppendTo(out, "style='font-size:18px;'>");
+    AppendTo(out, "order 8, symmetries of a square)</text>\n");
     
-    AppendTo(out, "<rect x='940' y='94' width='15' height='15' ");
-    AppendTo(out, "fill='#f0fdf4' stroke='#16a34a' ");
-    AppendTo(out, "stroke-width='2'/>\n");
-    AppendTo(out, "<text x='970' y='107' class='ctx'>");
-    AppendTo(out, "Sylow 3: C&#8323; (cyclic order 3), n&#8323;=4</text>\n");
+    AppendTo(out, "<rect x='1140' y='135' width='15' height='15' ");
+    AppendTo(out, "fill='#f0fdf4' stroke='#16a34a' stroke-width='2'/>\n");
+    AppendTo(out, "<text x='1170' y='148' class='ctx' ");
+    AppendTo(out, "style='font-size:18px;'>");
+    AppendTo(out, "<tspan fill='#16a34a' font-weight='bold'>Green:</tspan> ");
+    AppendTo(out, "Sylow 3-subgroups, C<tspan class='sub'>3</tspan> ");
+    AppendTo(out, "(cyclic group of order 3)</text>\n");
     
-    AppendTo(out, "<rect x='940' y='116' width='15' height='15' ");
+    AppendTo(out, "<rect x='1140' y='165' width='15' height='15' ");
     AppendTo(out, "fill='#f8fafc' stroke='#2563eb' ");
     AppendTo(out, "stroke-width='3' stroke-dasharray='4,4'/>\n");
-    AppendTo(out, "<text x='970' y='129' class='ctx'>");
-    AppendTo(out, "Normal subgroup (N &#8884; G)</text>\n");
-
-    AppendTo(out, "<text x='940' y='150' class='ctx' ");
-    AppendTo(out, "style='font-style:italic; font-size:14px;'>");
-    AppendTo(out, "V&#8324; = Klein four-group (C&#8322;&#215;C&#8322;)");
-    AppendTo(out, "</text>\n");
-    AppendTo(out, "<text x='940' y='170' class='ctx' ");
-    AppendTo(out, "style='font-style:italic; font-size:14px;'>");
-    AppendTo(out, "&#215;k = actual subgroups represented by node");
+    AppendTo(out, "<text x='1170' y='178' class='ctx' ");
+    AppendTo(out, "style='font-size:18px;'>");
+    AppendTo(out, "<tspan font-weight='bold'>Dashed outline:</tspan> ");
+    AppendTo(out, "Normal subgroup (N &#8884; S<tspan class='sub'>4</tspan>)");
     AppendTo(out, "</text>\n");
 
+    AppendTo(out, "<text x='1140' y='210' class='ctx' ");
+    AppendTo(out, "style='font-style:italic; font-size:16px;'>");
+    AppendTo(out, "V<tspan class='sub'>4</tspan> = C<tspan class='sub'>2");
+    AppendTo(out, "</tspan>&#215;C<tspan class='sub'>2</tspan> ");
+    AppendTo(out, "(Both V<tspan class='sub'>4</tspan> classes ");
+    AppendTo(out, "are isomorphic to C<tspan class='sub'>2</tspan>");
+    AppendTo(out, "&#215;C<tspan class='sub'>2</tspan>)</text>\n");
+    
+    AppendTo(out, "<text x='1140' y='240' class='ctx' ");
+    AppendTo(out, "style='font-style:italic; font-size:16px;'>");
+    AppendTo(out, "Class size: Number of actual subgroups ");
+    AppendTo(out, "represented by a node</text>\n");
+
+    # ---------------- Z-INDEX TRICK: DRAW PANELS FIRST ----------------
+    
+    AppendTo(out, "<rect x='50' y='1450' width='1600' height='70' ");
+    AppendTo(out, "fill='#eff6ff' stroke='#3b82f6' rx='8'/>\n");
+    AppendTo(out, "<text x='850' y='1495' class='cti' ");
+    AppendTo(out, "style='text-anchor:middle; color:#1e3a8a; ");
+    AppendTo(out, "font-size:26px;'>");
+    AppendTo(out, "Conjugation &#10230; Orbit &#10230; Normalizer ");
+    AppendTo(out, "&#10230; Orbit&#8211;Stabilizer &#10230; ");
+    AppendTo(out, "n<tspan class='sub'>p</tspan> = [S<tspan class='sub'>4");
+    AppendTo(out, "</tspan> : N<tspan class='sub'>S4</tspan>(P)] ");
+    AppendTo(out, ", &#160;&#160; P &#8712; ");
+    AppendTo(out, "<tspan style='font-style:normal;'>Syl</tspan>");
+    AppendTo(out, "<tspan class='sub'>p</tspan>(S<tspan class='sub'>4");
+    AppendTo(out, "</tspan>)</text>\n");
+
+    AppendTo(out, "<rect class='cbg' x='50' y='1550' ");
+    AppendTo(out, "width='780' height='200'/>\n");
+    AppendTo(out, "<text x='70' y='1585' class='cti'>");
+    AppendTo(out, "1. Existence &#8212; Sylow's 1st Theorem</text>\n");
+    AppendTo(out, "<text x='70' y='1620' class='ctx'>");
+    AppendTo(out, "For a finite group G and a prime p: if |G| = ");
+    AppendTo(out, "p<tspan class='sup'>a</tspan> &#183; m with p &#8740; m, ");
+    AppendTo(out, "</text>\n");
+    AppendTo(out, "<text x='70' y='1650' class='ctx'>");
+    AppendTo(out, "then G has a subgroup of order p<tspan class='sup'>");
+    AppendTo(out, "a</tspan>.</text>\n");
+    AppendTo(out, "<text x='70' y='1690' class='ctx'>");
+    AppendTo(out, "For S<tspan class='sub'>4</tspan>: |S<tspan ");
+    AppendTo(out, "class='sub'>4</tspan>| = 24 = 2&#179; &#183; 3.</text>\n");
+    AppendTo(out, "<text x='70' y='1720' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold;'>");
+    AppendTo(out, "Therefore, a Sylow 2-subgroup has order 8, </text>\n");
+    AppendTo(out, "<text x='70' y='1750' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold;'>");
+    AppendTo(out, "and a Sylow 3-subgroup has order 3.</text>\n");
+
+    AppendTo(out, "<rect class='cbg' x='50' y='1780' ");
+    AppendTo(out, "width='780' height='130'/>\n");
+    AppendTo(out, "<text x='70' y='1815' class='cti'>");
+    AppendTo(out, "2. Conjugacy &#8212; Sylow's 2nd Theorem</text>\n");
+    AppendTo(out, "<text x='70' y='1855' class='ctx'>");
+    AppendTo(out, "P, Q &#8712; <tspan style='font-style:normal;'>Syl</tspan>");
+    AppendTo(out, "<tspan class='sub'>p</tspan>(G) &#10233; ");
+    AppendTo(out, "Q = gPg<tspan class='sup'>-1</tspan> for some g &#8712; G.");
+    AppendTo(out, "</text>\n");
+    AppendTo(out, "<text x='70' y='1885' class='ctx'>");
+    AppendTo(out, "All Sylow p-subgroups form a ");
+    AppendTo(out, "single orbit under conjugation.</text>\n");
+    
+    AppendTo(out, "<rect class='cbg' x='50' y='1940' ");
+    AppendTo(out, "width='780' height='290'/>\n");
+    AppendTo(out, "<text x='70' y='1975' class='cti'>");
+    AppendTo(out, "3. Number of Sylow Subgroups &#8212; Sylow's 3rd Theorem");
+    AppendTo(out, "</text>\n");
+    
+    AppendTo(out, "<text x='70' y='2015' class='ctx'>");
+    AppendTo(out, "For p=2: n<tspan class='sub'>2</tspan> | 3, ");
+    AppendTo(out, "n<tspan class='sub'>2</tspan> &#8801; 1 (mod 2) ");
+    AppendTo(out, "&#10233; n<tspan class='sub'>2</tspan> &#8712; {1, 3}.");
+    AppendTo(out, "</text>\n");
+    
+    AppendTo(out, "<text x='70' y='2045' class='ctx'>");
+    AppendTo(out, "GAP computes |N<tspan class='sub'>S4</tspan>");
+    AppendTo(out, "(P<tspan class='sub'>2</tspan>)| = 8, so:</text>\n");
+    
+    AppendTo(out, "<rect x='90' y='2060' width='540' height='34' ");
+    AppendTo(out, "fill='#fff' stroke='#2563eb' rx='4'/>\n");
+    AppendTo(out, "<text x='360' y='2084' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; fill:#2563eb; ");
+    AppendTo(out, "text-anchor:middle;'>");
+    AppendTo(out, "n<tspan class='sub'>2</tspan> = [S<tspan class='sub'>");
+    AppendTo(out, "4</tspan> : N<tspan class='sub'>S4</tspan>");
+    AppendTo(out, "(P<tspan class='sub'>2</tspan>)] = 24/8 = 3</text>\n");
+
+    AppendTo(out, "<text x='70' y='2125' class='ctx'>");
+    AppendTo(out, "For p=3: n<tspan class='sub'>3</tspan> | 8, ");
+    AppendTo(out, "n<tspan class='sub'>3</tspan> &#8801; 1 (mod 3) ");
+    AppendTo(out, "&#10233; n<tspan class='sub'>3</tspan> &#8712; {1, 4}.");
+    AppendTo(out, "</text>\n");
+    
+    AppendTo(out, "<text x='70' y='2155' class='ctx'>");
+    AppendTo(out, "GAP computes |N<tspan class='sub'>S4</tspan>");
+    AppendTo(out, "(P<tspan class='sub'>3</tspan>)| = 6, so:</text>\n");
+    
+    AppendTo(out, "<rect x='90' y='2170' width='540' height='34' ");
+    AppendTo(out, "fill='#fff' stroke='#16a34a' rx='4'/>\n");
+    AppendTo(out, "<text x='360' y='2194' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; fill:#16a34a; ");
+    AppendTo(out, "text-anchor:middle;'>");
+    AppendTo(out, "n<tspan class='sub'>3</tspan> = [S<tspan class='sub'>");
+    AppendTo(out, "4</tspan> : N<tspan class='sub'>S4</tspan>");
+    AppendTo(out, "(P<tspan class='sub'>3</tspan>)] = 24/6 = 4</text>\n");
+
+    AppendTo(out, "<rect class='cbg' x='870' y='1550' ");
+    AppendTo(out, "width='780' height='150'/>\n");
+    AppendTo(out, "<text x='890' y='1585' class='cti'>");
+    AppendTo(out, "4. Group Theory + Algorithms + Computation + ");
+    AppendTo(out, "Visualization</text>\n");
+    AppendTo(out, "<text x='890' y='1620' class='ctx'>");
+    AppendTo(out, "GAP computes the subgroup structure and the ");
+    AppendTo(out, "values used in the diagram.</text>\n");
+    AppendTo(out, "<text x='890' y='1660' class='ctx' ");
+    AppendTo(out, "style='font-style:italic;'>");
+    AppendTo(out, "Theory &#10230; Algorithm &#10230; Computation ");
+    AppendTo(out, "&#10230; Visualization</text>\n");
+
+    AppendTo(out, "<rect class='cbg' x='870' y='1730' ");
+    AppendTo(out, "width='780' height='380'/>\n");
+    AppendTo(out, "<text x='890' y='1765' class='cti'>");
+    AppendTo(out, "5. GAP Code Excerpt &amp; Verification</text>\n");
+    
+    AppendTo(out, "<text x='910' y='1810' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
+    AppendTo(out, "G := SymmetricGroup(4);;</text>\n");
+    
+    AppendTo(out, "<text x='910' y='1840' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
+    AppendTo(out, "cls := ConjugacyClassesSubgroups(G);;</text>\n");
+    
+    AppendTo(out, "<text x='910' y='1890' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#0f172a;'>");
+    AppendTo(out, "Length(cls);</text>\n");
+    AppendTo(out, "<text x='1450' y='1890' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; fill:#64748b;'>");
+    AppendTo(out, "# 11</text>\n");
+    
+    AppendTo(out, "<text x='910' y='1920' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#0f172a;'>");
+    AppendTo(out, "Sum(List(cls, Size));</text>\n");
+    AppendTo(out, "<text x='1450' y='1920' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; fill:#64748b;'>");
+    AppendTo(out, "# 30</text>\n");
+
+    AppendTo(out, "<text x='910' y='1970' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
+    AppendTo(out, "P2 := SylowSubgroup(G, 2);;</text>\n");
+    
+    AppendTo(out, "<text x='910' y='2000' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#0f172a;'>");
+    AppendTo(out, "Index(G, Normalizer(G, P2));</text>\n");
+    AppendTo(out, "<text x='1450' y='2000' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; fill:#64748b;'>");
+    AppendTo(out, "# 3</text>\n");
+
+    AppendTo(out, "<text x='910' y='2050' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
+    AppendTo(out, "P3 := SylowSubgroup(G, 3);;</text>\n");
+    
+    AppendTo(out, "<text x='910' y='2080' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#0f172a;'>");
+    AppendTo(out, "Index(G, Normalizer(G, P3));</text>\n");
+    AppendTo(out, "<text x='1450' y='2080' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; fill:#64748b;'>");
+    AppendTo(out, "# 4</text>\n");
+
+    AppendTo(out, "<rect class='cbg' x='870' y='2140' ");
+    AppendTo(out, "width='780' height='260'/>\n");
+    AppendTo(out, "<text x='890' y='2175' class='cti'>");
+    AppendTo(out, "6. BTP System Architecture</text>\n");
+    AppendTo(out, "<text x='890' y='2215' class='ctx'>");
+    AppendTo(out, "GAP computes: Subgroups, conjugacy classes, </text>\n");
+    AppendTo(out, "<text x='890' y='2245' class='ctx'>");
+    AppendTo(out, "class sizes, cover relations, Sylow subgroups,</text>\n");
+    AppendTo(out, "<text x='890' y='2275' class='ctx'>");
+    AppendTo(out, "and normalizers.</text>\n");
+    AppendTo(out, "<text x='890' y='2315' class='ctx'>");
+    AppendTo(out, "Visualization layer: Displays the mathematical </text>\n");
+    AppendTo(out, "<text x='890' y='2345' class='ctx'>");
+    AppendTo(out, "data produced by GAP. It does not perform </text>\n");
+    AppendTo(out, "<text x='890' y='2375' class='ctx'>");
+    AppendTo(out, "group-theoretic calculations.</text>\n");
+
+    # ---------------- MASSIVE PIPELINE SECTION ----------------
+    AppendTo(out, "<rect class='cbg' x='50' y='2450' ");
+    AppendTo(out, "width='1600' height='700'/>\n");
+    AppendTo(out, "<text x='70' y='2490' class='cti' ");
+    AppendTo(out, "style='font-size:24px;'>");
+    AppendTo(out, "7. GAP Computation Pipeline</text>\n");
+    
+    AppendTo(out, "<text x='850' y='2540' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " font-size:32px; fill:#0f172a; text-anchor:middle;'>");
+    AppendTo(out, "S<tspan class='sub'>4</tspan></text>\n");
+    
+    AppendTo(out, "<text x='850' y='2580' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    
+    AppendTo(out, "<text x='850' y='2620' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " font-size:34px; fill:#2563eb; text-anchor:middle;'>");
+    AppendTo(out, "ConjugacyClassesSubgroups</text>\n");
+    
+    AppendTo(out, "<text x='850' y='2660' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    
+    # Split Branches
+    AppendTo(out, "<line x1='450' y1='2675' x2='1250' y2='2675' ");
+    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:4;'/>\n");
+    AppendTo(out, "<line x1='450' y1='2675' x2='450' y2='2700' ");
+    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:4;'/>\n");
+    AppendTo(out, "<line x1='1250' y1='2675' x2='1250' y2='2700' ");
+    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:4;'/>\n");
+
+    # BRANCH HEADERS
+    AppendTo(out, "<text x='450' y='2730' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; fill:#0f172a; ");
+    AppendTo(out, "font-size:30px; text-anchor:middle;'>");
+    AppendTo(out, "Conjugacy-Class Diagram</text>\n");
+
+    AppendTo(out, "<text x='1250' y='2730' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; fill:#0f172a; ");
+    AppendTo(out, "font-size:30px; text-anchor:middle;'>");
+    AppendTo(out, "Sylow Analysis</text>\n");
+
+    AppendTo(out, "<text x='450' y='2770' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    AppendTo(out, "<text x='1250' y='2770' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+
+    # ROW 1
+    AppendTo(out, "<text x='450' y='2810' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb; ");
+    AppendTo(out, "font-size:28px; text-anchor:middle;'>");
+    AppendTo(out, "Representatives &amp; Class Sizes</text>\n");
+    
+    AppendTo(out, "<text x='1250' y='2810' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " fill:#2563eb; font-size:32px; text-anchor:middle;'>");
+    AppendTo(out, "SylowSubgroup</text>\n");
+
+    AppendTo(out, "<text x='450' y='2850' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    AppendTo(out, "<text x='1250' y='2850' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    
+    # ROW 2
+    AppendTo(out, "<text x='450' y='2890' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " fill:#2563eb; font-size:32px; text-anchor:middle;'>");
+    AppendTo(out, "MaximalSubgroups</text>\n");
+
+    AppendTo(out, "<text x='1250' y='2890' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " fill:#2563eb; font-size:32px; text-anchor:middle;'>");
+    AppendTo(out, "Normalizer N<tspan class='sub'>G</tspan>(P)</text>\n");
+
+    AppendTo(out, "<text x='450' y='2930' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    AppendTo(out, "<text x='1250' y='2930' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    
+    # ROW 3
+    AppendTo(out, "<text x='450' y='2970' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb; ");
+    AppendTo(out, "font-size:28px; text-anchor:middle;'>");
+    AppendTo(out, "Hasse / Cover Relations</text>\n");
+
+    AppendTo(out, "<text x='1250' y='2970' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; color:#2563eb; ");
+    AppendTo(out, "font-size:28px; text-anchor:middle;'>");
+    AppendTo(out, "Orbit&#8211;Stabilizer</text>\n");
+
+    AppendTo(out, "<text x='1250' y='3010' class='ctx' ");
+    AppendTo(out, "style='fill:#94a3b8; font-size:40px; ");
+    AppendTo(out, "text-anchor:middle;'>&#8595;</text>\n");
+    
+    # ROW 4
+    AppendTo(out, "<text x='1250' y='3050' class='ctx' ");
+    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
+    AppendTo(out, " font-size:34px; fill:#0f172a; text-anchor:middle;'>");
+    AppendTo(out, "n<tspan class='sub'>2</tspan> , n<tspan class='sub'>");
+    AppendTo(out, "3</tspan></text>\n");
+    
+    # Disclaimer
+    AppendTo(out, "<text x='850' y='3200' class='ctx' ");
+    AppendTo(out, "style='font-style:italic; font-size:24px; ");
+    AppendTo(out, "text-anchor:middle;'>");
+    AppendTo(out, "The displayed subgroup data and numerical results ");
+    AppendTo(out, "are generated by GAP.</text>\n");
+
+    AppendTo(out, "<rect x='50' y='3260' width='1600' height='80' ");
+    AppendTo(out, "fill='#f8fafc' stroke='#cbd5e1' rx='8'/>\n");
+    AppendTo(out, "<text x='850' y='3310' class='ctx' ");
+    AppendTo(out, "style='font-weight:bold; text-anchor:middle; ");
+    AppendTo(out, "font-size:26px;'>");
+    AppendTo(out, "Theory gives constraints &#10230; GAP ");
+    AppendTo(out, "computes the structure &#10230; Visualization ");
+    AppendTo(out, "makes it understandable</text>\n");
+
+    # ---------------- GRAPH ROUTING (GEOMETRICALLY PERFECT) ----------------
     GetX := function(ord, sz, nm)
-        if ord = 24 then return 700; fi;
-        if ord = 12 then return 200; fi;
-        if ord = 8 then return 700; fi;
-        if ord = 6 then return 1200; fi;
-        if ord = 4 and sz = 1 then return 200; fi;
+        if ord = 24 then return 850; fi;
+        if ord = 12 then return 250; fi;
+        if ord = 8 then return 850; fi;
+        if ord = 6 then return 1450; fi;
+        if ord = 4 and sz = 1 then return 250; fi;
         if ord = 4 and sz = 3 and (nm="C4" or nm="C_4") then 
-            return 700; 
+            return 850; 
         fi;
-        if ord = 4 and sz = 3 then return 1050; fi;
-        if ord = 3 then return 200; fi;
-        if ord = 2 and sz = 3 then return 700; fi;
-        if ord = 2 and sz = 6 then return 1200; fi;
-        if ord = 1 then return 700; fi; return 700;
+        if ord = 4 and sz = 3 then return 1450; fi;
+        if ord = 3 then return 650; fi;
+        if ord = 2 and sz = 3 then return 1050; fi;
+        if ord = 2 and sz = 6 then return 1450; fi;
+        if ord = 1 then return 850; fi; return 850;
     end;
 
     GetY := function(ord, sz, nm)
-        if ord = 24 then return 260; fi;
-        if ord = 12 then return 410; fi;
-        if ord = 8 then return 410; fi;
-        if ord = 6 then return 410; fi;
-        if ord = 4 and sz = 1 then return 580; fi;
+        if ord = 24 then return 300; fi;
+        if ord = 12 then return 540; fi;
+        if ord = 8 then return 540; fi;
+        if ord = 6 then return 540; fi;
+        if ord = 4 and sz = 1 then return 780; fi;
         if ord = 4 and sz = 3 and (nm="C4" or nm="C_4") then 
-            return 580; 
+            return 780; 
         fi;
-        if ord = 4 and sz = 3 then return 580; fi;
-        if ord = 3 then return 750; fi;
-        if ord = 2 and sz = 3 then return 750; fi;
-        if ord = 2 and sz = 6 then return 750; fi;
-        if ord = 1 then return 920; fi; return 920;
+        if ord = 4 and sz = 3 then return 780; fi;
+        if ord = 3 then return 1020; fi;
+        if ord = 2 and sz = 3 then return 1020; fi;
+        if ord = 2 and sz = 6 then return 1020; fi;
+        if ord = 1 then return 1260; fi; return 1260;
     end;
 
     for node in L do 
@@ -277,51 +607,63 @@ GenerateConjugationMasterclass := function(L, G, fn)
     for node in L do
         x := node.x; y := node.y; tX := x; 
         dispName := node.struct;
-        if dispName="S4" then dispName:="S&#8324;"; fi;
-        if dispName="A4" then dispName:="A&#8324;"; fi;
-        if dispName="S3" then dispName:="S&#8323;"; fi;
-        if dispName="C4" or dispName="C_4" then dispName:="C&#8324;"; fi;
+        if dispName="S4" then 
+            dispName:="S<tspan class='sub'>4</tspan>"; 
+        fi;
+        if dispName="A4" then 
+            dispName:="A<tspan class='sub'>4</tspan>"; 
+        fi;
+        if dispName="S3" then 
+            dispName:="S<tspan class='sub'>3</tspan>"; 
+        fi;
+        if dispName="C4" or dispName="C_4" then 
+            dispName:="C<tspan class='sub'>4</tspan>"; 
+        fi;
         if dispName="D8" or dispName="D_8" then 
-            dispName:="D&#8328; &#8212; Sylow 2-subgroup"; 
+            dispName:="D<tspan class='sub'>8</tspan> &#8212; Sylow 2-subgroup"; 
         fi;
         if dispName="C3" or dispName="C_3" then 
-            dispName:="C&#8323; &#8212; Sylow 3-subgroup"; 
+            dispName:="C<tspan class='sub'>3</tspan> &#8212; Sylow 3-subgroup"; 
         fi;
         if node.order=4 and node.classSize=1 then 
-            dispName:="Normal V&#8324;"; 
+            dispName:="Normal V<tspan class='sub'>4</tspan>"; 
         fi;
-        if node.order=4 and node.classSize=3 and dispName<>"C&#8324;" then 
-            dispName:="Non-normal V&#8324;"; 
+        if node.order=4 and node.classSize=3 and dispName<>"C<tspan class='sub'>4</tspan>" then 
+            dispName:="Non-normal V<tspan class='sub'>4</tspan>"; 
         fi;
         if node.order=2 and node.classSize=3 then 
-            dispName:="C&#8322; &#8212; Double transposition"; 
+            dispName:="C<tspan class='sub'>2</tspan> &#8212; Double transposition"; 
         fi;
         if node.order=2 and node.classSize=6 then 
-            dispName:="C&#8322; &#8212; Transposition"; 
+            dispName:="C<tspan class='sub'>2</tspan> &#8212; Transposition"; 
         fi;
         if node.order=1 then dispName:="{e}"; fi;
 
-        if node.order = 24 then
-            AppendTo(out, "<rect class='topnode' x='", x-90);
-            AppendTo(out, "' y='", y-22, "' width='180' ");
-            AppendTo(out, "height='44'/>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y-3);
-            AppendTo(out, "' class='st' style='font-size:18px;'>");
+        if node.classSize = 1 then
+            AppendTo(out, "<rect class='normalnode' x='", x-160);
+            AppendTo(out, "' y='", y-32, "' width='320' ");
+            AppendTo(out, "height='64'/>\n");
+            
+            AppendTo(out, "<text x='", tX, "' y='", y-5);
+            AppendTo(out, "' class='st'>");
             AppendTo(out, dispName, "</text>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y+14);
-            AppendTo(out, "' class='ord'>Order 24 &#8226; &#215;1");
+            AppendTo(out, "<text x='", tX, "' y='", y+18);
+            AppendTo(out, "' class='ord'>");
+            AppendTo(out, "Order ", node.order, " &#8226; Class size: 1");
             AppendTo(out, "</text>\n");
             
         elif node.order = 8 then
             AppendTo(out, "<g id='c_syl2' onclick='tS(2)'>\n");
-            AppendTo(out, "<rect class='sylow2' x='", x-90);
-            AppendTo(out, "' y='", y-20, "' width='180' ");
-            AppendTo(out, "height='40'/>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y-3);
-            AppendTo(out, "' class='sst2'>", dispName, "</text>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y+14);
-            AppendTo(out, "' class='ord'>Order 8 &#8226; &#215;3 ");
-            AppendTo(out, "&#8226; n&#8322;=3</text>\n</g>\n");
+            AppendTo(out, "<rect class='sylow2' x='", x-160);
+            AppendTo(out, "' y='", y-32, "' width='320' ");
+            AppendTo(out, "height='64'/>\n");
+            AppendTo(out, "<text x='", tX, "' y='", y-5);
+            AppendTo(out, "' class='sst2'>");
+            AppendTo(out, dispName, "</text>\n");
+            AppendTo(out, "<text x='", tX, "' y='", y+18);
+            AppendTo(out, "' class='ord'>");
+            AppendTo(out, "Order 8 &#8226; Class size: 3 ");
+            AppendTo(out, "</text>\n</g>\n");
             
             AppendTo(out, "<g id='e_syl2' style='display:none;'>\n");
             AppendTo(out, "<rect class='sylow2' x='", x-250);
@@ -341,7 +683,8 @@ GenerateConjugationMasterclass := function(L, G, fn)
                 AppendTo(out, "<text x='", x-40, "' y='");
                 AppendTo(out, y+(i-1)*32+23);
                 AppendTo(out, "' class='ctx' ");
-                AppendTo(out, "style='text-anchor:middle; font-size:13px;'>");
+                AppendTo(out, "style='text-anchor:middle; ");
+                AppendTo(out, "font-size:14px;'>");
                 AppendTo(out, conjStrs2[i], "</text>\n");
                 AppendTo(out, "<text id='lbl2_", i, "' x='", x+190);
                 AppendTo(out, "' y='", y+(i-1)*32+23);
@@ -349,7 +692,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
             od;
             
             AppendTo(out, "<text id='c_res2' x='", x, "' y='", y+120);
-            AppendTo(out, "' class='st'>Conjugation: P &#8614; gPg&#8315;&#185;</text>\n");
+            AppendTo(out, "' class='st'>Select g:</text>\n");
             
             for i in [1..3] do
                 AppendTo(out, "<g onclick='dC(2,[");
@@ -378,39 +721,47 @@ GenerateConjugationMasterclass := function(L, G, fn)
             
             AppendTo(out, "<text x='", x, "' y='", y+210);
             AppendTo(out, "' class='st' style='fill:#2563eb;'>");
-            AppendTo(out, "Normalizer</text>\n");
+            AppendTo(out, "Stab_G(P) = N_G(P)</text>\n");
             
             AppendTo(out, "<text x='", x, "' y='", y+235);
             AppendTo(out, "' class='ctx' ");
             AppendTo(out, "style='text-anchor:middle;'>");
-            AppendTo(out, "Stab_G(P) = N_G(P&#8321;) = ", N2, "</text>\n");
+            AppendTo(out, "N_G(P<tspan class='sub'>1</tspan>) = ");
+            AppendTo(out, N2, "</text>\n");
             
             AppendTo(out, "<text x='", x, "' y='", y+260);
             AppendTo(out, "' class='ctx' ");
             AppendTo(out, "style='text-anchor:middle;'>");
-            AppendTo(out, "|N_G(P&#8321;)| = ", szN2, "</text>\n");
+            AppendTo(out, "|N_G(P<tspan class='sub'>1</tspan>)| = ");
+            AppendTo(out, szN2, "</text>\n");
             
-            AppendTo(out, "<text x='", x, "' y='", y+295);
+            AppendTo(out, "<text x='", x, "' y='", y+290);
             AppendTo(out, "' class='sst2' ");
-            AppendTo(out, "style='text-anchor:middle; font-size:22px;'>");
+            AppendTo(out, "style='text-anchor:middle; font-size:18px;'>");
             AppendTo(out, "|Orb(P)| = [G : N_G(P)] = 24 / ");
             AppendTo(out, szN2, " = 3</text>\n");
             
-            AppendTo(out, "<text x='", x, "' y='", y+325);
+            AppendTo(out, "<rect x='", x-60, "' y='", y+305);
+            AppendTo(out, "' width='120' height='45' ");
+            AppendTo(out, "fill='#fff' stroke='#d97706' ");
+            AppendTo(out, "stroke-width='2' rx='6'/>\n");
+            AppendTo(out, "<text x='", x, "' y='", y+335);
             AppendTo(out, "' class='sst2' ");
-            AppendTo(out, "style='text-anchor:middle; font-size:24px;'>");
-            AppendTo(out, "n&#8322; = 3</text>\n</g>\n");
+            AppendTo(out, "style='text-anchor:middle; font-size:26px;'>");
+            AppendTo(out, "n<tspan class='sub'>2</tspan> = 3</text>\n</g>\n");
 
         elif node.order = 3 then
             AppendTo(out, "<g id='c_syl3' onclick='tS(3)'>\n");
-            AppendTo(out, "<rect class='sylow3' x='", x-90);
-            AppendTo(out, "' y='", y-20, "' width='180' ");
-            AppendTo(out, "height='40'/>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y-3);
-            AppendTo(out, "' class='sst3'>", dispName, "</text>\n");
-            AppendTo(out, "<text x='", tX, "' y='", y+14);
-            AppendTo(out, "' class='ord'>Order 3 &#8226; &#215;4 ");
-            AppendTo(out, "&#8226; n&#8323;=4</text>\n</g>\n");
+            AppendTo(out, "<rect class='sylow3' x='", x-160);
+            AppendTo(out, "' y='", y-32, "' width='320' ");
+            AppendTo(out, "height='64'/>\n");
+            AppendTo(out, "<text x='", tX, "' y='", y-5);
+            AppendTo(out, "' class='sst3'>");
+            AppendTo(out, dispName, "</text>\n");
+            AppendTo(out, "<text x='", tX, "' y='", y+18);
+            AppendTo(out, "' class='ord'>");
+            AppendTo(out, "Order 3 &#8226; Class size: 4 ");
+            AppendTo(out, "</text>\n</g>\n");
             
             AppendTo(out, "<g id='e_syl3' style='display:none;'>\n");
             AppendTo(out, "<rect class='sylow3' x='", x-250);
@@ -430,7 +781,8 @@ GenerateConjugationMasterclass := function(L, G, fn)
                 AppendTo(out, "<text x='", x-40, "' y='");
                 AppendTo(out, y+(i-1)*32+23);
                 AppendTo(out, "' class='ctx' ");
-                AppendTo(out, "style='text-anchor:middle; font-size:13px;'>");
+                AppendTo(out, "style='text-anchor:middle; ");
+                AppendTo(out, "font-size:14px;'>");
                 AppendTo(out, conjStrs3[i], "</text>\n");
                 AppendTo(out, "<text id='lbl3_", i, "' x='", x+190);
                 AppendTo(out, "' y='", y+(i-1)*32+23);
@@ -438,7 +790,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
             od;
             
             AppendTo(out, "<text id='c_res3' x='", x, "' y='", y+150);
-            AppendTo(out, "' class='st'>Conjugation: Q &#8614; gQg&#8315;&#185;</text>\n");
+            AppendTo(out, "' class='st'>Select g:</text>\n");
             
             for i in [1..3] do
                 AppendTo(out, "<g onclick='dC(3,[");
@@ -468,268 +820,53 @@ GenerateConjugationMasterclass := function(L, G, fn)
             
             AppendTo(out, "<text x='", x, "' y='", y+240);
             AppendTo(out, "' class='st' style='fill:#2563eb;'>");
-            AppendTo(out, "Normalizer</text>\n");
+            AppendTo(out, "Stab_G(Q) = N_G(Q)</text>\n");
             
-            AppendTo(out, "<text x='", x, "' y='", y+265);
+            AppendTo(out, "<text x='", x, "' y='", y+270);
             AppendTo(out, "' class='ctx' ");
             AppendTo(out, "style='text-anchor:middle;'>");
-            AppendTo(out, "Stab_G(Q) = N_G(Q&#8321;) = ", N3, "</text>\n");
+            AppendTo(out, "Orb(Q<tspan class='sub'>1</tspan>) = {Q");
+            AppendTo(out, "<tspan class='sub'>1</tspan>, Q<tspan ");
+            AppendTo(out, "class='sub'>2</tspan>, Q<tspan class='sub'>3");
+            AppendTo(out, "</tspan>, Q<tspan class='sub'>4</tspan>}</text>\n");
             
-            AppendTo(out, "<text x='", x, "' y='", y+290);
+            AppendTo(out, "<text x='", x, "' y='", y+295);
             AppendTo(out, "' class='ctx' ");
             AppendTo(out, "style='text-anchor:middle;'>");
-            AppendTo(out, "|N_G(Q&#8321;)| = ", szN3, "</text>\n");
+            AppendTo(out, "|N_G(Q<tspan class='sub'>1</tspan>)| = ");
+            AppendTo(out, szN3, "</text>\n");
             
             AppendTo(out, "<text x='", x, "' y='", y+325);
             AppendTo(out, "' class='sst3' ");
-            AppendTo(out, "style='text-anchor:middle; font-size:22px;'>");
-            AppendTo(out, "|Orb(Q)| = [G : N_G(Q)] = 24 / ");
+            AppendTo(out, "style='text-anchor:middle; font-size:18px;'>");
+            AppendTo(out, "n<tspan class='sub'>3</tspan> = |Orb(Q)| = ");
+            AppendTo(out, "[S<tspan class='sub'>4</tspan> : N_G(Q)] = 24 / ");
             AppendTo(out, szN3, " = 4</text>\n");
-            
-            AppendTo(out, "<text x='", x, "' y='", y+355);
+
+            AppendTo(out, "<rect x='", x-60, "' y='", y+335);
+            AppendTo(out, "' width='120' height='45' ");
+            AppendTo(out, "fill='#fff' stroke='#16a34a' ");
+            AppendTo(out, "stroke-width='2' rx='6'/>\n");
+            AppendTo(out, "<text x='", x, "' y='", y+365);
             AppendTo(out, "' class='sst3' ");
-            AppendTo(out, "style='text-anchor:middle; font-size:24px;'>");
-            AppendTo(out, "n&#8323; = 4</text>\n</g>\n");
+            AppendTo(out, "style='text-anchor:middle; font-size:26px;'>");
+            AppendTo(out, "n<tspan class='sub'>3</tspan> = 4</text>\n</g>\n");
 
         else
-            if node.order=12 or (node.order=4 and node.classSize=1) then
-                AppendTo(out, "<rect class='normalnode' x='", x-80);
-                AppendTo(out, "' y='", y-20, "' width='160' ");
-                AppendTo(out, "height='40'/>\n");
-            else
-                AppendTo(out, "<rect class='node' x='", x-80);
-                AppendTo(out, "' y='", y-20, "' width='160' ");
-                AppendTo(out, "height='40'/>\n");
-            fi;
+            AppendTo(out, "<rect class='node' x='", x-160);
+            AppendTo(out, "' y='", y-32, "' width='320' ");
+            AppendTo(out, "height='64'/>\n");
             
-            AppendTo(out, "<text x='", tX, "' y='", y-3);
-            AppendTo(out, "' class='st'>", dispName, "</text>\n");
-            if node.order=1 then
-                AppendTo(out, "<text x='", tX, "' y='", y+14);
-                AppendTo(out, "' class='ord'>Order 1 &#8226; &#215;1");
-                AppendTo(out, "</text>\n");
-            else
-                AppendTo(out, "<text x='", tX, "' y='", y+14);
-                AppendTo(out, "' class='ord'>Order ", node.order);
-                AppendTo(out, " &#8226; &#215;", node.classSize);
-                AppendTo(out, "</text>\n");
-            fi;
+            AppendTo(out, "<text x='", tX, "' y='", y-5);
+            AppendTo(out, "' class='st'>");
+            AppendTo(out, dispName, "</text>\n");
+            AppendTo(out, "<text x='", tX, "' y='", y+18);
+            AppendTo(out, "' class='ord'>");
+            AppendTo(out, "Order ", node.order, " &#8226; Class size: ", node.classSize);
+            AppendTo(out, "</text>\n");
         fi;
     od;
     
-    AppendTo(out, "<rect x='40' y='1000' width='1320' height='50' ");
-    AppendTo(out, "fill='#eff6ff' stroke='#3b82f6' rx='8'/>\n");
-    AppendTo(out, "<text x='700' y='1030' class='cti' ");
-    AppendTo(out, "style='text-anchor:middle; color:#1e3a8a; ");
-    AppendTo(out, "font-size:22px;'>");
-    AppendTo(out, "Theory gives constraints &#10230; GAP ");
-    AppendTo(out, "computes the actual structure</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='40' y='1070' ");
-    AppendTo(out, "width='640' height='150'/>\n");
-    AppendTo(out, "<text x='60' y='1100' class='cti'>");
-    AppendTo(out, "1. Existence (Sylow 1st Theorem)</text>\n");
-    AppendTo(out, "<text x='60' y='1135' class='ctx'>");
-    AppendTo(out, "For finite G and prime p: |G| = p^a &#183; m, ");
-    AppendTo(out, "p &#8740; m &#8658; &#8707; P &#8804; G, |P| = p^a.");
-    AppendTo(out, "</text>\n");
-    AppendTo(out, "<text x='60' y='1165' class='ctx'>");
-    AppendTo(out, "For S&#8324;: |S&#8324;| = 24 = 2&#179; &#183; 3 = ");
-    AppendTo(out, "3&#185; &#183; 8. Therefore |P&#8322;|=8, ");
-    AppendTo(out, "|P&#8323;|=3.</text>\n");
-    AppendTo(out, "<text x='60' y='1195' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold;'>");
-    AppendTo(out, "GAP finds 3 subgroups of order 8, and ");
-    AppendTo(out, "4 subgroups of order 3.</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='40' y='1240' ");
-    AppendTo(out, "width='640' height='130'/>\n");
-    AppendTo(out, "<text x='60' y='1270' class='cti'>");
-    AppendTo(out, "2. Conjugacy (Sylow 2nd Theorem)</text>\n");
-    AppendTo(out, "<text x='60' y='1305' class='ctx'>");
-    AppendTo(out, "P, Q &#8712; Syl_p(G) &#8658; ");
-    AppendTo(out, "Q = gPg&#8315;&#185; for some g &#8712; G.</text>\n");
-    AppendTo(out, "<text x='60' y='1335' class='ctx'>");
-    AppendTo(out, "Therefore, all Sylow p-subgroups form a ");
-    AppendTo(out, "single orbit under conjugation.</text>\n");
-    
-    AppendTo(out, "<rect class='cbg' x='40' y='1390' ");
-    AppendTo(out, "width='640' height='160'/>\n");
-    AppendTo(out, "<text x='60' y='1420' class='cti'>");
-    AppendTo(out, "3. Counting + GAP (Sylow 3rd Theorem)</text>\n");
-    AppendTo(out, "<text x='60' y='1455' class='ctx'>");
-    AppendTo(out, "Sylow III: n&#8322; | 3, n&#8322; &#8801; 1 (mod 2) ");
-    AppendTo(out, "&#8658; n&#8322; &#8712; {1, 3}.</text>\n");
-    AppendTo(out, "<text x='80' y='1480' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; fill:#2563eb;'>");
-    AppendTo(out, "GAP explicitly computes: n&#8322; = 3.</text>\n");
-    AppendTo(out, "<text x='60' y='1510' class='ctx'>");
-    AppendTo(out, "Sylow III: n&#8323; | 8, n&#8323; &#8801; 1 (mod 3) ");
-    AppendTo(out, "&#8658; n&#8323; &#8712; {1, 4}.</text>\n");
-    AppendTo(out, "<text x='80' y='1535' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; fill:#16a34a;'>");
-    AppendTo(out, "GAP explicitly computes: n&#8323; = 4.</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='720' y='1070' ");
-    AppendTo(out, "width='640' height='150'/>\n");
-    AppendTo(out, "<text x='740' y='1100' class='cti'>");
-    AppendTo(out, "4. Computational Group Theory</text>\n");
-    AppendTo(out, "<text x='740' y='1135' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold;'>");
-    AppendTo(out, "Abstract Algebra + Algorithms + Visualization");
-    AppendTo(out, "</text>\n");
-    AppendTo(out, "<text x='740' y='1165' class='ctx'>");
-    AppendTo(out, "GAP turns abstract group-theoretic definitions ");
-    AppendTo(out, "into concrete computational data.</text>\n");
-    AppendTo(out, "<text x='740' y='1195' class='ctx' ");
-    AppendTo(out, "style='font-style:italic;'>");
-    AppendTo(out, "Theory &#10230; Algorithm &#10230; Computation ");
-    AppendTo(out, "&#10230; Visualization</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='720' y='1240' ");
-    AppendTo(out, "width='640' height='130'/>\n");
-    AppendTo(out, "<text x='740' y='1270' class='cti'>");
-    AppendTo(out, "5. Why S&#8324;?</text>\n");
-    AppendTo(out, "<text x='740' y='1305' class='ctx'>");
-    AppendTo(out, "|S&#8324;| = 24 = 2&#179; &#183; 3. It contains ");
-    AppendTo(out, "both Sylow 2- and Sylow 3-subgroups.</text>\n");
-    AppendTo(out, "<text x='740' y='1335' class='ctx'>");
-    AppendTo(out, "It provides a compact non-trivial example in ");
-    AppendTo(out, "which Sylow theory, conjugation, normalizers, ");
-    AppendTo(out, "</text>\n");
-    AppendTo(out, "<text x='740' y='1355' class='ctx'>");
-    AppendTo(out, "and subgroup structure can all be visualized.");
-    AppendTo(out, "</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='720' y='1390' ");
-    AppendTo(out, "width='640' height='160'/>\n");
-    AppendTo(out, "<text x='740' y='1420' class='cti'>");
-    AppendTo(out, "6. BTP System Architecture</text>\n");
-    AppendTo(out, "<text x='740' y='1455' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold;'>");
-    AppendTo(out, "GAP Computes:</text>\n");
-    AppendTo(out, "<text x='760' y='1480' class='ctx'>");
-    AppendTo(out, "Subgroups, Conjugacy classes, Class sizes, ");
-    AppendTo(out, "Containment / cover relations,</text>\n");
-    AppendTo(out, "<text x='760' y='1500' class='ctx'>");
-    AppendTo(out, "Sylow subgroups, Normalizers, Orbit sizes");
-    AppendTo(out, "</text>\n");
-    AppendTo(out, "<text x='740' y='1525' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold;'>");
-    AppendTo(out, "Visualization Layer:</text>\n");
-    AppendTo(out, "<text x='760' y='1545' class='ctx'>");
-    AppendTo(out, "Renders only data generated by GAP; it performs");
-    AppendTo(out, " no independent computation.</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='40' y='1570' ");
-    AppendTo(out, "width='1320' height='80'/>\n");
-    AppendTo(out, "<text x='700' y='1618' class='cti' ");
-    AppendTo(out, "style='text-anchor:middle; font-size:24px; ");
-    AppendTo(out, "fill:#1d4ed8;'>");
-    AppendTo(out, "Conjugation &#10230; Orbit &#10230; Normalizer ");
-    AppendTo(out, "&#10230; Orbit-Stabilizer &#10230; ");
-    AppendTo(out, "n_p = [G : N_G(P)]</text>\n");
-
-    AppendTo(out, "<rect class='cbg' x='40' y='1670' ");
-    AppendTo(out, "width='1320' height='580'/>\n");
-    AppendTo(out, "<text x='60' y='1700' class='cti'>");
-    AppendTo(out, "7. GAP Computation Pipeline</text>\n");
-    
-    AppendTo(out, "<text x='660' y='1740' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " font-size:18px; fill:#0f172a;'>");
-    AppendTo(out, "S&#8324;</text>\n");
-    
-    AppendTo(out, "<text x='660' y='1765' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<text x='660' y='1790' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " font-size:18px; fill:#2563eb;'>");
-    AppendTo(out, "ConjugacyClassesSubgroups</text>\n");
-    
-    AppendTo(out, "<text x='660' y='1815' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<line x1='350' y1='1825' x2='950' y2='1825' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='350' y1='1825' x2='350' y2='1840' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='950' y1='1825' x2='950' y2='1840' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-
-    AppendTo(out, "<text x='350' y='1860' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
-    AppendTo(out, "Representatives</text>\n");
-    
-    AppendTo(out, "<text x='950' y='1860' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
-    AppendTo(out, "Class Sizes</text>\n");
-
-    AppendTo(out, "<text x='350' y='1885' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-
-    AppendTo(out, "<text x='350' y='1910' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " fill:#2563eb;'>MaximalSubgroups</text>\n");
-    
-    AppendTo(out, "<text x='350' y='1935' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<text x='350' y='1960' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
-    AppendTo(out, "Hasse / Cover Relations</text>\n");
-
-    AppendTo(out, "<line x1='350' y1='1970' x2='350' y2='1990' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='350' y1='1990' x2='660' y2='1990' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='660' y1='1990' x2='660' y2='2005' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-
-    AppendTo(out, "<line x1='400' y1='2020' x2='900' y2='2020' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='400' y1='2020' x2='400' y2='2035' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-    AppendTo(out, "<line x1='900' y1='2020' x2='900' y2='2035' ");
-    AppendTo(out, "style='stroke:#cbd5e1; stroke-width:2;'/>\n");
-
-    AppendTo(out, "<text x='400' y='2060' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " fill:#2563eb;'>SylowSubgroup</text>\n");
-
-    AppendTo(out, "<text x='900' y='2060' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
-    AppendTo(out, "NormalSubgroups</text>\n");
-
-    AppendTo(out, "<text x='400' y='2085' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<text x='400' y='2110' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " fill:#2563eb;'>Normalizer</text>\n");
-
-    AppendTo(out, "<text x='400' y='2135' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<text x='400' y='2160' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; color:#2563eb;'>");
-    AppendTo(out, "Orbit-Stabilizer</text>\n");
-
-    AppendTo(out, "<text x='400' y='2185' class='ctx' ");
-    AppendTo(out, "style='fill:#94a3b8;'>&#8595;</text>\n");
-    
-    AppendTo(out, "<text x='400' y='2210' class='ctx' ");
-    AppendTo(out, "style='font-family:monospace; font-weight:bold;");
-    AppendTo(out, " font-size:18px; fill:#0f172a;'>n&#8322; , n&#8323;");
-    AppendTo(out, "</text>\n");
-    
-    AppendTo(out, "<text x='700' y='2270' class='ctx' ");
-    AppendTo(out, "style='font-weight:bold; text-anchor:middle;'>");
-    AppendTo(out, "Theory gives the constraints &#10230; GAP ");
-    AppendTo(out, "computes the structure &#10230; Visualization ");
-    AppendTo(out, "makes the structure understandable.</text>\n");
-
     AppendTo(out, "</svg>\n"); CloseStream(out);
     Print("Success! Perfect BTP Defense Diagram generated.\n");
 end;
