@@ -506,7 +506,7 @@ GenerateConjugationMasterclass := function(L, G, fn)
     AppendTo(out, "<text x='450' y='2890' class='ctx' ");
     AppendTo(out, "style='font-family:monospace; font-weight:bold;");
     AppendTo(out, " fill:#2563eb; font-size:32px; text-anchor:middle;'>");
-    AppendTo(out, "MaximalSubgroups</text>\n");
+    AppendTo(out, "Subgroup Containment up to Conjugacy</text>\n");
 
     AppendTo(out, "<text x='1250' y='2890' class='ctx' ");
     AppendTo(out, "style='font-family:monospace; font-weight:bold;");
